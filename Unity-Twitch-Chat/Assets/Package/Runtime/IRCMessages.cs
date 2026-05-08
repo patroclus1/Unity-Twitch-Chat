@@ -2,6 +2,22 @@ using System.Collections.Generic;
 
 namespace Lexone.UnityTwitchChat
 {
+    /// <summary>
+    /// ROOMSTATE info. Sent by Twitch IRC when joining a channel; carries the broadcaster's Twitch user id.
+    /// </summary>
+    [System.Serializable]
+    public struct RoomStateInfo
+    {
+        public string channel;
+        public string channelId;
+
+        public RoomStateInfo(string channel, string channelId)
+        {
+            this.channel = channel;
+            this.channelId = channelId;
+        }
+    }
+
     [System.Serializable]
     public struct ChatterEmote
     {

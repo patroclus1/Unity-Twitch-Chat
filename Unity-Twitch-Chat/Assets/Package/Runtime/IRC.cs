@@ -73,11 +73,19 @@ namespace Lexone.UnityTwitchChat
         public event Action<Chatter> OnChatMessage;
         public event Action<IRCReply> OnConnectionAlert;
 
+        /// <summary>
+        /// Invoked when a ROOMSTATE message is received from Twitch IRC,
+        /// providing the channel name and the broadcaster's Twitch user id.
+        /// Useful for loading per-channel third-party emotes.
+        /// </summary>
+        public event Action<RoomStateInfo> OnRoomStateReceived;
+
         #endregion
 
         // Queues
         internal readonly ConcurrentQueue<IRCReply> alertQueue = new ConcurrentQueue<IRCReply>();
         internal readonly ConcurrentQueue<Chatter> chatterQueue = new ConcurrentQueue<Chatter>();
+        internal readonly ConcurrentQueue<RoomStateInfo> roomStateQueue = new ConcurrentQueue<RoomStateInfo>();
 
         [ContextMenu("Ping")]
         public void Ping() => connection?.Ping();
@@ -156,6 +164,19 @@ namespace Lexone.UnityTwitchChat
                 if (chatterQueue.TryDequeue(out var chatter))
                 {
                     OnChatMessage?.Invoke(chatter);
+                    dataHandledThisFrame++;
+                }
+            }
+
+            // Handle pending ROOMSTATE info
+            while (!roomStateQueue.IsEmpty)
+            {
+                if (dataHandledThisFrame >= maxDataPerFrame)
+                    break;
+
+                if (roomStateQueue.TryDequeue(out var roomState))
+                {
+                    OnRoomStateReceived?.Invoke(roomState);
                     dataHandledThisFrame++;
                 }
             }

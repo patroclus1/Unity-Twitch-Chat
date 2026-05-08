@@ -116,6 +116,9 @@ namespace Lexone.UnityTwitchChat
                     case "USERSTATE": // = Userstate
                         HandleUSERSTATE(ircString, tagString);
                         break;
+                    case "ROOMSTATE": // = Roomstate (sent on channel join, has room-id tag)
+                        HandleROOMSTATE(ircString, tagString);
+                        break;
                     case "NOTICE": // = Notice
                         HandleNOTICE(ircString, tagString);
                         break;
@@ -172,6 +175,20 @@ namespace Lexone.UnityTwitchChat
             var tags = ParseHelper.ParseTags(tagString);
             ClientUserTags = tags;
             UpdateRateLimits(); // Update rate limits based on client tags
+        }
+
+        /// <summary>
+        /// Handle a ROOMSTATE message (sent on channel join, contains room-id tag).
+        /// We use this to learn the broadcaster's Twitch user id so that third-party
+        /// emote loaders (7TV / BTTV / FFZ) can fetch channel emotes.
+        /// </summary>
+        private void HandleROOMSTATE(string ircString, string tagString)
+        {
+            var channel = ParseHelper.ParseChannel(ircString);
+            var tags = ParseHelper.ParseTags(tagString);
+
+            if (!string.IsNullOrEmpty(tags.channelId))
+                roomStateQueue.Enqueue(new RoomStateInfo(channel, tags.channelId));
         }
 
         /// <summary>

@@ -29,6 +29,7 @@ namespace Lexone.UnityTwitchChat
 
             this.alertQueue = irc.alertQueue;
             this.chatterQueue = irc.chatterQueue;
+            this.roomStateQueue = irc.roomStateQueue;
 
             this.rateLimit = RateLimit.ChatRegular;
 
@@ -70,6 +71,7 @@ namespace Lexone.UnityTwitchChat
 
         private readonly ConcurrentQueue<IRCReply> alertQueue;
         private readonly ConcurrentQueue<Chatter> chatterQueue;
+        private readonly ConcurrentQueue<RoomStateInfo> roomStateQueue;
 
         private Thread readThread;
         private Thread writeThread;
