@@ -4,6 +4,27 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [Unreleased]
+
+### Added
+- Third-party emote support (7TV / BTTV / FFZ), both global and per-channel
+    - New `ThirdPartyEmotes` MonoBehaviour with auto-loading on Start and on channel join
+    - Optional toggleable HTTP proxy for API and CDN requests (`Use Proxy` + `Proxy Prefix`)
+    - Per-provider / per-scope (global / channel) on/off toggles
+    - Configurable retry count, retry delay and request timeout
+    - Built-in zero-width detection (7TV `flags`, BTTV well-known overlays)
+    - `OnProviderLoaded`, `OnGlobalsLoaded`, `OnChannelLoaded`, `OnError` events
+- `IRC.OnRoomStateReceived` event that fires when a Twitch ROOMSTATE arrives, exposing the broadcaster's channel id (used for fetching channel emotes)
+- `Chatter.GetThirdPartyEmotes()` and `Chatter.ContainsThirdPartyEmote(code)` helpers
+- `ThirdPartyEmoteExample` script in `ExampleProject`
+- `ChatRendererExample` script: end-to-end UGUI chat line renderer that merges Twitch native emotes and 3rd-party emotes into mixed text + `RawImage` runs, with per-provider 7TV format selection (PNG / WebP / GIF / AVIF, animated-aware)
+- `WebPEmoteAnimator` MonoBehaviour: plays a pre-decoded animated frame list on a `RawImage`
+- `WebPEmoteIntegration` (opt-in via `WEBP_INSTALLED` scripting define): plugs `netpyoung/unity.webp` into the renderer for real animated 7TV WebP playback, with a per-URL frame cache shared across animators
+- `WebPEmoteSetup` MonoBehaviour: drop-in bootstrap that wires `WebPEmoteIntegration.Install` to a `ChatRendererExample`; harmless no-op without `WEBP_INSTALLED`
+- Editor menu `Tools → Cyan Chat → Build Example Scene` (`CyanChatSceneBuilder`) generating `Assets/CyanChat/Scenes/CyanChatScene.unity` plus `TextRunPrefab` / `ImageRunPrefab`, with all references already wired
+- Default `ThirdPartyEmotes` proxy now points at `https://ext.rte.net.ru:8443/` and is enabled out of the box (`useProxy = true`)
+- Internal `JsonNode` parser (handles top-level arrays and FFZ-style numeric image keys, which `JsonUtility` cannot)
+
 ## [1.2.3] - 2024-08-22
 
 ### Added

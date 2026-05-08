@@ -1,4 +1,5 @@
 
+using System.Collections.Generic;
 using UnityEngine;
 
 namespace Lexone.UnityTwitchChat
@@ -54,5 +55,46 @@ namespace Lexone.UnityTwitchChat
         /// Returns true if the chatter has a given badge.
         /// </summary>
         public bool HasBadge(string badgeName) => tags.HasBadge(badgeName);
+
+        /// <summary>
+        /// <para>Scans the chat message for third-party emotes (7TV / BTTV / FFZ) loaded by
+        /// <see cref="ThirdPartyEmotes"/> and returns each occurrence with its character indices.</para>
+        /// <para>Returns an empty list if no <see cref="ThirdPartyEmotes"/> instance is active.</para>
+        /// </summary>
+        public List<ThirdPartyEmoteOccurrence> GetThirdPartyEmotes()
+        {
+            return ThirdPartyEmotes.Instance != null
+                ? ThirdPartyEmotes.Instance.FindEmotesInMessage(message)
+                : new List<ThirdPartyEmoteOccurrence>();
+        }
+
+        /// <summary>
+        /// Returns true if this chatter's message contains a third-party emote with the given code.
+        /// </summary>
+        public bool ContainsThirdPartyEmote(string code)
+        {
+            if (ThirdPartyEmotes.Instance == null || string.IsNullOrEmpty(code) || string.IsNullOrEmpty(message))
+                return false;
+
+            int len = message.Length;
+            int start = 0;
+            for (int i = 0; i <= len; ++i)
+            {
+                bool atBoundary = (i == len) || message[i] == ' ';
+                if (!atBoundary) continue;
+
+                if (i - start == code.Length)
+                {
+                    bool match = true;
+                    for (int k = 0; k < code.Length; ++k)
+                    {
+                        if (message[start + k] != code[k]) { match = false; break; }
+                    }
+                    if (match) return true;
+                }
+                start = i + 1;
+            }
+            return false;
+        }
     }
 }
